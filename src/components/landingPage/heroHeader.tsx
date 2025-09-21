@@ -6,6 +6,7 @@ import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 import React, { useEffect, useState } from "react"
 import { DestinyLogo } from "../general/DestinyLogo"
+import { AuthDialog } from "../auth/AuthDialog"
 
 export const HeroHeader = () => {
   const [menuState, setMenuState] = useState(false)
@@ -72,18 +73,13 @@ export const HeroHeader = () => {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                <Button
-                  asChild
-                  size="sm"
-                  className={cn(
-                    isScrolled ? "lg:inline-flex" : "hidden",
-                    "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white",
+                <AuthDialog
+                  // mode="login"
+                  triggerClassName={cn(
+                    isScrolled && "lg:inline-flex",
+                    "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white"
                   )}
-                >
-                  <Link href="#">
-                    <span>Plan My Trip</span>
-                  </Link>
-                </Button>
+                />
               </div>
             </div>
           </div>
