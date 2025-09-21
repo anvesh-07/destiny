@@ -1,5 +1,6 @@
 "use client";
-import { useState, useId } from "react";
+import { useState, useId, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,21 +15,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+} from "firebase/auth";
+import Cookies from 'js-cookie';
 
 type AuthDialogProps = {
   triggerClassName?: string;
   openByDefault?: boolean;
 };
 
-function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps) {
+function AuthDialog({
+  triggerClassName,
+  openByDefault = false,
+}: AuthDialogProps) {
   const router = useRouter();
   const id = useId();
-  const [mode, setMode] = useState<"login" | "signup">("login");
   const [open, setOpen] = useState(openByDefault);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const isLogin = mode === "login";
-
-  // When dialog closes, go back if it was open by default
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen);
     if (!nextOpen && openByDefault) {
@@ -36,9 +47,45 @@ function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps
     }
   };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        console.log("User is signed in:", user);
+        const token = await user.getIdToken();
+        Cookies.set('firebase-auth-token', token, { expires: 7 }); // Set cookie for 7 days
+        setOpen(false);
+        router.push("/");
+      } else {
+        console.log("User is signed out");
+        Cookies.remove('firebase-auth-token'); // Remove cookie on sign out
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleEmailPasswordAuth = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      {/* Trigger Button (hide if openByDefault) */}
       {!openByDefault && (
         <DialogTrigger asChild>
           <Button
@@ -48,53 +95,42 @@ function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps
               "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white"
             }
           >
-            {isLogin ? "Login" : "Sign up"}
+            Login
           </Button>
         </DialogTrigger>
       )}
 
-      {/* Custom Overlay with Blur */}
       <DialogOverlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
 
-      {/* Dialog Content */}
       <DialogContent>
         <div className="flex flex-col items-center gap-2">
           <div
             className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border"
             aria-hidden="true"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-[#6D28D9] to-[#2563EB] rounded-lg flex items-center justify-center"
-            onClick={() => router.push('/')}
+            <div
+              className="w-8 h-8 bg-gradient-to-br from-[#6D28D9] to-[#2563EB] rounded-lg flex items-center justify-center cursor-pointer"
+              onClick={() => router.push("/")}
             >
               <Globe className="h-5 w-5 text-white" />
             </div>
           </div>
           <DialogHeader>
             <DialogTitle className="sm:text-center">
-              {isLogin ? "Login" : "Sign up"} to Origin UI
+              Login to Origin UI
             </DialogTitle>
             <DialogDescription className="sm:text-center">
-              {isLogin
-                ? "Enter your credentials to access your account."
-                : "We just need a few details to get you started."}
+              Enter your credentials to access your account.
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        {/* Form */}
-        <form className="space-y-5">
+        {error && (
+          <p className="text-center text-sm text-red-500">{error}</p>
+        )}
+
+        <form className="space-y-5" onSubmit={handleEmailPasswordAuth}>
           <div className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor={`${id}-name`}>Full name</Label>
-                <Input
-                  id={`${id}-name`}
-                  placeholder="Matt Welsh"
-                  type="text"
-                  required
-                />
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor={`${id}-email`}>Email</Label>
               <Input
@@ -102,6 +138,8 @@ function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps
                 placeholder="you@example.com"
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
@@ -111,57 +149,41 @@ function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps
                 placeholder="Enter your password"
                 type="password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-              {isLogin && (
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => alert("Forgot password flow here")}
-                    className="text-xs text-[#2863d9] hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-              )}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => alert("Forgot password flow here")}
+                  className="text-xs text-[#2863d9] hover:underline"
+                >
+                  Forgot password?
+                </button>
+              </div>
             </div>
           </div>
-          <Button type="submit" className="w-full bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white">
-            {isLogin ? "Login" : "Sign up"}
+          <Button
+            type="submit"
+            className="w-full bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white"
+          >
+            Login
           </Button>
         </form>
 
-        {/* Divider */}
         <div className="flex items-center gap-3 before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
           <span className="text-xs text-muted-foreground">Or</span>
         </div>
 
-        <Button variant="outline">Continue with Google</Button>
+        <Button variant="outline" onClick={handleGoogleSignIn}>
+          Continue with Google
+        </Button>
 
-        {/* Footer Toggle */}
         <p className="text-center text-xs text-muted-foreground">
-          {isLogin ? (
-            <>
-              Don’t have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("signup")}
-                className="underline hover:no-underline"
-              >
-                Sign up
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{" "}
-              <button
-                type="button"
-                onClick={() => setMode("login")}
-                className="underline hover:no-underline "
-              >
-                Login
-              </button>
-            </>
-          )}
+          Don’t have an account?{" "}
+          <Link href="/sign-up" className="underline hover:no-underline">
+            Sign up
+          </Link>
         </p>
       </DialogContent>
     </Dialog>

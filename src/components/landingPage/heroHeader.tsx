@@ -6,11 +6,12 @@ import { Button } from "../ui/button"
 import { cn } from "@/lib/utils"
 import React, { useEffect, useState } from "react"
 import { DestinyLogo } from "../general/DestinyLogo"
-import { AuthDialog } from "../auth/AuthDialog"
+import { useRouter } from "next/navigation"
 
 export const HeroHeader = () => {
   const [menuState, setMenuState] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,16 +74,15 @@ export const HeroHeader = () => {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                <Link href="/sign-in">
-                  <Button
-                    className={cn(
-                      isScrolled && "lg:inline-flex",
-                      "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white w-full"
-                    )}
-                  >
-                    Plan my trip
-                  </Button>
-                </Link>
+                <Button
+                  onClick={() => router.push('/sign-in')}
+                  className={cn(
+                    isScrolled && "lg:inline-flex",
+                    "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white w-full"
+                  )}
+                >
+                  Plan my trip
+                </Button>
               </div>
             </div>
           </div>
