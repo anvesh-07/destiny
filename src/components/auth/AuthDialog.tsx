@@ -28,8 +28,16 @@ function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps
 
   const isLogin = mode === "login";
 
+  // When dialog closes, go back if it was open by default
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen && openByDefault) {
+      router.back();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {/* Trigger Button (hide if openByDefault) */}
       {!openByDefault && (
         <DialogTrigger asChild>
