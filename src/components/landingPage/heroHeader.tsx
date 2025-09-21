@@ -73,13 +73,16 @@ export const HeroHeader = () => {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-                <AuthDialog
-                  // mode="login"
-                  triggerClassName={cn(
-                    isScrolled && "lg:inline-flex",
-                    "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white"
-                  )}
-                />
+                <Link href="/sign-in" passHref legacyBehavior>
+                  <Button
+                    className={cn(
+                      isScrolled && "lg:inline-flex",
+                      "bg-[#6D28D9] hover:bg-[#6D28D9]/90 text-white w-full"
+                    )}
+                  >
+                    Plan my trip
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

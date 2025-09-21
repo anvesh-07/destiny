@@ -15,15 +15,15 @@ import { Label } from "@/components/ui/label";
 import { Globe } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-type AuthDialogProps = {
+type SignUpDialogProps = {
   triggerClassName?: string;
   openByDefault?: boolean;
 };
 
-function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps) {
+function SignUpDialog({ triggerClassName, openByDefault = false }: SignUpDialogProps) {
   const router = useRouter();
   const id = useId();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup">("signup");
   const [open, setOpen] = useState(openByDefault);
 
   const isLogin = mode === "login";
@@ -160,4 +160,4 @@ function AuthDialog({ triggerClassName, openByDefault = false }: AuthDialogProps
   );
 }
 
-export { AuthDialog };
+export { SignUpDialog };
