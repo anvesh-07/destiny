@@ -16,7 +16,7 @@ export default function JourneyPlanner() {
     try {
       await signOut(auth);
       // The onAuthStateChanged listener in your auth components will handle cookie removal
-      router.push("/");
+      router.push("/sign-in");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
