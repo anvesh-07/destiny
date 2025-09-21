@@ -15,6 +15,7 @@ import ProblemAndSolution from "@/components/landingPage/problemAndSolution";
 import JourneyPlanner from "@/components/journey/JourneyPlanner";
 
 export default function Home() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 

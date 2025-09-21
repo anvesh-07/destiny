@@ -79,6 +79,7 @@ function SignUpDialog({
         }
         await createUserWithEmailAndPassword(auth, email, password);
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.message);
     }
@@ -89,6 +90,7 @@ function SignUpDialog({
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.message);
     }

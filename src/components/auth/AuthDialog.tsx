@@ -69,6 +69,9 @@ function AuthDialog({
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.message);
     }
@@ -79,6 +82,7 @@ function AuthDialog({
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.message);
     }
